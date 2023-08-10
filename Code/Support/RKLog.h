@@ -37,8 +37,6 @@
  * through.
  */
 
-typedef void (^LoggingHookBlock)();
-
 @protocol RKLogging
 
 + (void)logWithComponent:(_RKlcl_component_t)component
@@ -47,12 +45,6 @@ typedef void (^LoggingHookBlock)();
                     line:(uint32_t)line
                 function:(const char *)function
                   format:(NSString *)format, ... NS_FORMAT_FUNCTION(6, 7);
-
-// Logging
-+ (void)setLoggingHook:(LoggingHookBlock)loggingHook;
-
-+ (LoggingHookBlock)loggingHook;
-
 @end
 
 /**
