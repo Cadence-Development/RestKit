@@ -41,12 +41,23 @@
 
 @implementation RKLogInitializer
 
+static LoggingHookBlock _loggingHook;
+
 + (void)load
 {
     RKlcl_configure_by_name("RestKit*", RKLogLevelDefault);
     RKlcl_configure_by_name("App", RKLogLevelDefault);
     if (RKGetLoggingClass() == Nil) RKSetLoggingClass([RKLOG_CLASS class]);
     RKLogInfo(@"RestKit logging initialized...");
+}
+
+// Logging
++ (void)setLoggingHook:(LoggingHookBlock)loggingHook {
+    _loggingHook = loggingHook;
+}
+
++ (LoggingHookBlock)loggingHook {
+    return _loggingHook;
 }
 
 @end

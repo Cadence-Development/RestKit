@@ -772,9 +772,14 @@ BOOL RKDoesArrayOfResponseDescriptorsContainOnlyEntityMappings(NSArray *response
     }
     RKLogDebug(@"Checking mappings result of %ld objects for %ld potentially orphaned local objects...", (long) [managedObjectsInMappingResult count], (long) [localObjects count]);
     
+    NSUInteger localObjectCount = localObjects.count;
+    
     NSMutableSet *orphanedObjects = [localObjects mutableCopy];
     [orphanedObjects minusSet:managedObjectsInMappingResult];
     RKLogDebug(@"Deleting %lu orphaned objects found in local database, but missing from mapping result", (unsigned long) [orphanedObjects count]);
+    
+    NSUInteger objectsToDeleteCount = orphanedObjects.count;
+    RKLogCrashlytics(@"Update database\n Local Objects count - %lu;\nObjects to delete count - %lu", (unsigned long) localObjectCount, (unsigned long) objectsToDeleteCount);
     
     if ([orphanedObjects count]) {
         [self.privateContext performBlockAndWait:^{
@@ -890,8 +895,12 @@ BOOL RKDoesArrayOfResponseDescriptorsContainOnlyEntityMappings(NSArray *response
     __block BOOL _blockSuccess = YES;
     __block NSError *localError = nil;
     [self.privateContext performBlockAndWait:^{
+        NSString *contextState = self.privateContext == nil ? @"YES" : @"NO";
+        RKLogCrashlytics(@"Getting inseterd objects; Context is nil - %@", contextState);
         NSArray *insertedObjects = [[self.privateContext insertedObjects] allObjects];
         RKLogDebug(@"Obtaining permanent ID's for %ld managed objects", (unsigned long) [insertedObjects count]);
+        NSString *contextState2 = self.privateContext != nil ? @"YES" : @"NO";
+        RKLogCrashlytics(@"Obtaining permanent ID's - obtaining ID's from context\n Context not nil - %@\n", contextState2);
         _blockSuccess = [self.privateContext obtainPermanentIDsForObjects:insertedObjects error:&localError];
     }];
     if (!_blockSuccess && error) *error = localError;

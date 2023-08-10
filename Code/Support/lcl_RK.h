@@ -112,7 +112,8 @@ enum _RKlcl_enum_level_t {
     RKlcl_vInfo,                  // informational message
     RKlcl_vDebug,                 // coarse-grained debugging information
     RKlcl_vTrace,                 // fine-grained debugging information
-
+    RKlcl_vCrashlytics,
+    
    _RKlcl_level_t_count,
    _RKlcl_level_t_first = 0,
    _RKlcl_level_t_last  = _RKlcl_level_t_count-1
@@ -309,7 +310,8 @@ enum {
   __RKlcl_log_symbol_RKlcl_vWarning  = RKlcl_vWarning,
   __RKlcl_log_symbol_RKlcl_vInfo     = RKlcl_vInfo,
   __RKlcl_log_symbol_RKlcl_vDebug    = RKlcl_vDebug,
-  __RKlcl_log_symbol_RKlcl_vTrace    = RKlcl_vTrace
+  __RKlcl_log_symbol_RKlcl_vTrace    = RKlcl_vTrace,
+  __RKlcl_log_symbol_RKlcl_vCrashlytics    = RKlcl_vCrashlytics
 };
 
 // Macro for appending the '__RKlcl_log_symbol_' prefix to a given symbol.

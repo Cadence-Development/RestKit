@@ -36,6 +36,9 @@
  * There is a single "current" logging class installed, which all log messages will flow
  * through.
  */
+
+typedef void (^LoggingHookBlock)();
+
 @protocol RKLogging
 
 + (void)logWithComponent:(_RKlcl_component_t)component
@@ -44,6 +47,11 @@
                     line:(uint32_t)line
                 function:(const char *)function
                   format:(NSString *)format, ... NS_FORMAT_FUNCTION(6, 7);
+
+// Logging
++ (void)setLoggingHook:(LoggingHookBlock)loggingHook;
+
++ (LoggingHookBlock)loggingHook;
 
 @end
 
@@ -107,6 +115,9 @@ RKlcl_log(RKLogComponent, RKlcl_vDebug, @"" __VA_ARGS__)
 #define RKLogTrace(...)                                                                 \
 RKlcl_log(RKLogComponent, RKlcl_vTrace, @"" __VA_ARGS__)
 
+#define RKLogCrashlytics(...)                                                           \
+RKlcl_log(RKLogComponent, RKlcl_vCrashlytics, @"" __VA_ARGS__)
+
 /**
  Log Level Aliases
 
@@ -119,6 +130,7 @@ RKlcl_log(RKLogComponent, RKlcl_vTrace, @"" __VA_ARGS__)
 #define RKLogLevelInfo      RKlcl_vInfo
 #define RKLogLevelDebug     RKlcl_vDebug
 #define RKLogLevelTrace     RKlcl_vTrace
+#define RKLogLevelCrashlytics RKlcl_vCrashlytics
 
 /**
  Alias the LibComponentLogger logging configuration method. Also ensures logging

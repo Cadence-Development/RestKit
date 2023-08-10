@@ -328,7 +328,10 @@ static NSMutableDictionary *RKRegisteredResponseMapperOperationDataSourceClasses
 
 - (void)main
 {
-    if (self.isCancelled) return [self willFinish];
+    if (self.isCancelled) {
+        RKLogCrashlytics(@"Finish response mapping because operation is canceled");
+        return [self willFinish];
+    }
 
     BOOL isErrorStatusCode = [RKErrorStatusCodes() containsIndex:self.response.statusCode];
     
@@ -348,7 +351,7 @@ static NSMutableDictionary *RKRegisteredResponseMapperOperationDataSourceClasses
             // This informs the caller that operation succeeded, but performed no mapping.
             self.mappingResult = nil;
         }
-
+        RKLogCrashlytics(@"Finish response mapping because request is empty");
         [self willFinish];
         return;
     }
@@ -363,7 +366,10 @@ static NSMutableDictionary *RKRegisteredResponseMapperOperationDataSourceClasses
         [self willFinish];
         return;
     }
-    if (self.isCancelled) return [self willFinish];        
+    if (self.isCancelled) {
+        RKLogCrashlytics(@"Finish response mapping because operation is canceled(2)");
+        return [self willFinish];
+    }
     
     // Invoke the will map deserialized response block
     if (self.willMapDeserializedResponseBlock) {
