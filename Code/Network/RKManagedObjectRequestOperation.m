@@ -895,16 +895,18 @@ BOOL RKDoesArrayOfResponseDescriptorsContainOnlyEntityMappings(NSArray *response
     __block BOOL _blockSuccess = YES;
     __block NSError *localError = nil;
     [self.privateContext performBlockAndWait:^{
-        NSString *contextState = self.privateContext == nil ? @"YES" : @"NO";
-        RKLogCrashlytics(@"Getting inseterd objects; Context is nil - %@", contextState);
         NSArray *insertedObjects = [[self.privateContext insertedObjects] allObjects];
         RKLogDebug(@"Obtaining permanent ID's for %ld managed objects", (unsigned long) [insertedObjects count]);
         NSString *contextState2 = self.privateContext != nil ? @"YES" : @"NO";
-        RKLogCrashlytics(@"Obtaining permanent ID's - obtaining ID's from context\n Context not nil - %@\n", contextState2);
+        RKLogCrashlytics(@"Obtaining permanent ID's - obtaining ID's\nObjects count - %ld\nContext not nil - %@\n", (unsigned long) [insertedObjects count], contextState2);
         _blockSuccess = [self.privateContext obtainPermanentIDsForObjects:insertedObjects error:&localError];
     }];
     if (!_blockSuccess && error) *error = localError;
 
+    if (localError) {
+        RKLogCrashlytics(@"Obtaining permanent ID's error occured - %@", localError.description);
+    }
+    
     return _blockSuccess;;
 }
 
