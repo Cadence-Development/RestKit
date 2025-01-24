@@ -80,10 +80,10 @@ static NSString * AFRKBase64EncodedStringFromString(NSString *string) {
     return [[NSString alloc] initWithData:mutableData encoding:NSASCIIStringEncoding];
 }
 
-static NSString * const kAFRKCharactersToBeEscapedInQueryString = @":/?&=;+!@#$()',*";
+static NSString * const kAFRKCharactersToBeEscapedInQueryString = @":/?&=;+!@#$()',*[]";
 
 static NSString * AFRKPercentEscapedQueryStringKeyFromStringWithEncoding(NSString *string, NSStringEncoding encoding) {
-    static NSString * const kAFRKCharactersToLeaveUnescapedInQueryStringPairKey = @"[].";
+    static NSString * const kAFRKCharactersToLeaveUnescapedInQueryStringPairKey = @".";
 
 	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)string, (__bridge CFStringRef)kAFRKCharactersToLeaveUnescapedInQueryStringPairKey, (__bridge CFStringRef)kAFRKCharactersToBeEscapedInQueryString, CFStringConvertNSStringEncodingToEncoding(encoding));
 }
@@ -157,14 +157,14 @@ NSArray * AFRKQueryStringPairsFromKeyAndValue(NSString *key, id value) {
         for (id nestedKey in [dictionary.allKeys sortedArrayUsingDescriptors:@[ sortDescriptor ]]) {
             id nestedValue = [dictionary objectForKey:nestedKey];
             if (nestedValue) {
-                [mutableQueryStringComponents addObjectsFromArray:AFRKQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@[%@]", key, nestedKey] : nestedKey), nestedValue)];
+                [mutableQueryStringComponents addObjectsFromArray:AFRKQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@.%@", key, nestedKey] : nestedKey), nestedValue)];
             }
         }
     } else if ([value isKindOfClass:[NSArray class]]) {
         NSArray *array = value;
-        for (id nestedValue in array) {
-            [mutableQueryStringComponents addObjectsFromArray:AFRKQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[]", key], nestedValue)];
-        }
+        [array enumerateObjectsUsingBlock:^(id  _Nonnull nestedValue, NSUInteger idx, BOOL * _Nonnull stop) {
+            [mutableQueryStringComponents addObjectsFromArray:AFRKQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[%lu]", key, (unsigned long)idx], nestedValue)];
+        }];
     } else if ([value isKindOfClass:[NSSet class]]) {
         NSSet *set = value;
         for (id obj in set) {

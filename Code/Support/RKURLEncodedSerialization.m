@@ -24,10 +24,10 @@
 
 // Taken from https://github.com/AFNetworking/AFNetworking/blob/49f2f8c9a907977ec1b3afb182404ae0a6bce883/AFNetworking/AFURLRequestSerialization.m
 
-static NSString * const RKAFCharactersToBeEscapedInQueryString = @":/?&=;+!@#$()',*";
+static NSString * const RKAFCharactersToBeEscapedInQueryString = @":/?&=;+!@#$()',*[]";
 
 static NSString * RKAFPercentEscapedQueryStringKeyFromStringWithEncoding(NSString *string, NSStringEncoding encoding) {
-    static NSString * const RKAFCharactersToLeaveUnescapedInQueryStringPairKey = @"[].";
+    static NSString * const RKAFCharactersToLeaveUnescapedInQueryStringPairKey = @".";
 
 	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)string, (__bridge CFStringRef)RKAFCharactersToLeaveUnescapedInQueryStringPairKey, (__bridge CFStringRef)RKAFCharactersToBeEscapedInQueryString, CFStringConvertNSStringEncodingToEncoding(encoding));
 }
@@ -108,14 +108,14 @@ NSArray * RKAFQueryStringPairsFromKeyAndValue(NSString *key, id value) {
         for (id nestedKey in [dictionary.allKeys sortedArrayUsingDescriptors:@[ sortDescriptor ]]) {
             id nestedValue = dictionary[nestedKey];
             if (nestedValue) {
-                [mutableQueryStringComponents addObjectsFromArray:RKAFQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@[%@]", key, nestedKey] : nestedKey), nestedValue)];
+                [mutableQueryStringComponents addObjectsFromArray:RKAFQueryStringPairsFromKeyAndValue((key ? [NSString stringWithFormat:@"%@.%@", key, nestedKey] : nestedKey), nestedValue)];
             }
         }
     } else if ([value isKindOfClass:[NSArray class]]) {
         NSArray *array = value;
-        for (id nestedValue in array) {
-            [mutableQueryStringComponents addObjectsFromArray:RKAFQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[]", key], nestedValue)];
-        }
+        [array enumerateObjectsUsingBlock:^(id  _Nonnull nestedValue, NSUInteger idx, BOOL * _Nonnull stop) {
+            [mutableQueryStringComponents addObjectsFromArray:RKAFQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[%lu]", key, (unsigned long)idx], nestedValue)];
+        }];
     } else if ([value isKindOfClass:[NSSet class]]) {
         NSSet *set = value;
         for (id obj in [set sortedArrayUsingDescriptors:@[ sortDescriptor ]]) {
